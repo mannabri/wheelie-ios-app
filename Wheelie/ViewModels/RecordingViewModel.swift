@@ -1,0 +1,195 @@
+//
+//  RecordingViewModel.swift
+//  Wheelie
+//
+//  ViewModel für GPS-Aufnahme (Starten, Pausieren, Beenden)
+//
+
+import Foundation
+import CoreLocation
+import Combine
+
+/// ViewModel für die aktive GPS-Aufnahme
+@MainActor
+class RecordingViewModel: ObservableObject {
+    
+    // MARK: - Published Properties
+    
+    @Published var currentRecording: Recording?
+    @Published var isRecording: Bool = false
+    @Published var isPaused: Bool = false
+    @Published var currentLocation: CLLocation?
+    @Published var errorMessage: String?
+    @Published var devicePitchAngle: Double = 0.0
+    
+    // MARK: - Dependencies
+    
+    private let locationManager: LocationManager
+    private let storageManager: StorageManager
+    private let deviceOrientationManager: DeviceOrientationManager
+    private var cancellables = Set<AnyCancellable>()
+    
+    // MARK: - Private Properties
+    
+    private var onRecordingFinishedCallback: ((Recording) -> Void)?
+    private var lastPitchAngleTimestamp: Date?
+    
+    // MARK: - Initialization
+    
+    init(locationManager: LocationManager? = nil, storageManager: StorageManager? = nil, deviceOrientationManager: DeviceOrientationManager? = nil) {
+        self.locationManager = locationManager ?? LocationManager()
+        self.storageManager = storageManager ?? .shared
+        self.deviceOrientationManager = deviceOrientationManager ?? DeviceOrientationManager()
+        
+        setupBindings()
+    }
+    
+    // MARK: - Setup
+    
+    private func setupBindings() {
+        locationManager.$currentLocation
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$currentLocation)
+        
+        locationManager.$authorizationStatus
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] status in
+                if status == .denied || status == .restricted {
+                    self?.errorMessage = "Standortzugriff wurde verweigert. Bitte aktiviere ihn in den Einstellungen."
+                }
+            }
+            .store(in: &cancellables)
+        
+        // Bind device orientation manager pitch angle and add to recording
+        deviceOrientationManager.$pitchAngle
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] angle in
+                self?.devicePitchAngle = angle
+                self?.addPitchAngle(angle)
+            }
+            .store(in: &cancellables)
+    }
+    
+    // MARK: - Public Methods
+    
+    /// Fragt Standortberechtigung an
+    func requestLocationPermission() {
+        locationManager.requestAuthorization()
+    }
+    
+    /// Fragt Berechtigung für Bewegungsdaten an
+    func requestMotionPermission() {
+        deviceOrientationManager.requestAuthorization()
+    }
+    
+    /// Setzt den Callback für beendete Aufnahmen
+    func setOnRecordingFinished(_ callback: @escaping (Recording) -> Void) {
+        onRecordingFinishedCallback = callback
+    }
+    
+    /// Startet eine neue GPS-Aufnahme
+    func startRecording() {
+        let recording = Recording(startDate: Date(), status: .recording)
+        currentRecording = recording
+        isRecording = true
+        isPaused = false
+        lastPitchAngleTimestamp = nil // Reset pitch angle timestamp
+        
+        deviceOrientationManager.startMonitoring()
+        
+        locationManager.startTracking { [weak self] location in
+            Task { @MainActor in
+                self?.addCoordinate(from: location)
+            }
+        }
+    }
+    
+    /// Pausiert die aktuelle Aufnahme
+    func pauseRecording() {
+        guard var recording = currentRecording else { return }
+        
+        recording.status = .paused
+        currentRecording = recording
+        isPaused = true
+        lastPitchAngleTimestamp = nil // Reset timestamp
+        
+        locationManager.pauseTracking()
+    }
+    
+    /// Setzt die pausierte Aufnahme fort
+    func resumeRecording() {
+        guard var recording = currentRecording else { return }
+        
+        recording.status = .recording
+        currentRecording = recording
+        isPaused = false
+        lastPitchAngleTimestamp = nil // Reset timestamp
+        
+        locationManager.resumeTracking()
+    }
+    
+    /// Beendet und speichert die Aufnahme
+    func stopRecording() {
+        guard var recording = currentRecording else { return }
+        
+        recording.status = .stopped
+        recording.endDate = Date()
+        
+        locationManager.stopTracking()
+        deviceOrientationManager.stopMonitoring()
+        
+        dump(recording) // TODO: remove dump
+        
+        do {
+            try storageManager.saveRecording(recording)
+            onRecordingFinishedCallback?(recording)
+            errorMessage = nil
+        } catch {
+            let nsError = error as NSError
+            errorMessage = "Fehler beim Speichern: \(error.localizedDescription) (Domain: \(nsError.domain), Code: \(nsError.code))"
+            print("Storage error details: \(error)")
+        }
+        
+        currentRecording = nil
+        isRecording = false
+        isPaused = false
+    }
+    
+    /// Verwirft die aktuelle Aufnahme ohne Speichern
+    func discardRecording() {
+        locationManager.stopTracking()
+        deviceOrientationManager.stopMonitoring()
+        currentRecording = nil
+        isRecording = false
+        isPaused = false
+    }
+    
+    // MARK: - Private Methods
+    
+    private func addCoordinate(from location: CLLocation) {
+        guard var recording = currentRecording else { return }
+        
+        let coordinate = Coordinate(from: location)
+        recording.coordinates.append(coordinate)
+        currentRecording = recording
+    }
+    
+    private func addPitchAngle(_ angle: Double) {
+        guard var recording = currentRecording, isRecording else { return }
+        
+        // Initialize timestamp on first call
+        if lastPitchAngleTimestamp == nil {
+            lastPitchAngleTimestamp = Date()
+        }
+        
+        // Only add pitch angle if at least 1 second has passed since the last addition
+        guard let lastTimestamp = lastPitchAngleTimestamp else { return }
+        let timeSinceLastAddition = Date().timeIntervalSince(lastTimestamp)
+        guard timeSinceLastAddition >= 1.0 else { return }
+        
+        let pitchAngle = PitchAngle(timestamp: Date(), angle: angle)
+        recording.pitchAngles.append(pitchAngle)
+        currentRecording = recording
+        lastPitchAngleTimestamp = Date()
+    }
+}
