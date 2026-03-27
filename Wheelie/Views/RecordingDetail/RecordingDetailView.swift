@@ -34,12 +34,12 @@ struct RecordingDetailView: View {
                 // Zusätzliche Infos
                 RecordingInfoView(recording: viewModel.recording)
                     .padding(.horizontal)
-                
                 // Pitch Angles Liste
                 if !viewModel.recording.pitchAngles.isEmpty {
                     PitchAnglesListView(pitchAngles: viewModel.recording.pitchAngles)
                         .padding(.horizontal)
                         .padding(.top, 16)
+                        .frame(height: 300)
                 }
             }
         }
@@ -117,59 +117,6 @@ private struct RecordingInfoView: View {
     }
 }
 
-/// Liste der aufgezeichneten Pitch-Winkel
-private struct PitchAnglesListView: View {
-    let pitchAngles: [PitchAngle]
-    
-    private var dateFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .medium
-        return formatter
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Pitch-Winkel")
-                .font(.headline)
-                
-            
-            List {
-                ForEach(pitchAngles) { pitchAngle in
-                    Text("123")
-//                    HStack {
-//                        VStack(alignment: .leading, spacing: 4) {
-//                            Text(dateFormatter.string(from: pitchAngle.timestamp))
-//                                .font(.caption)
-//                                .foregroundColor(.secondary)
-//
-//                            Text(String(format: "%.1f°", pitchAngle.angle))
-//                                .font(.headline)
-//                                .monospacedDigit()
-//                        }
-//
-//                        Spacer()
-//
-//                        // Visual indicator
-//                        Image(systemName: "phone.badge.checkmark")
-//                            .foregroundColor(.blue)
-//                            .font(.caption)
-//                    }
-                }
-            }
-            .listStyle(.plain)
-            .frame(maxHeight: 300)
-        }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
-        .onAppear{
-            print("pitchAngles")
-            dump(pitchAngles) // TODO: remove dump
-        }
-    }
-
-}
-
 #Preview {
     NavigationStack {
         RecordingDetailView(recording: Recording(
@@ -182,9 +129,9 @@ private struct PitchAnglesListView: View {
                 Coordinate(latitude: 52.522, longitude: 13.407)
             ],
             pitchAngles: [
-                PitchAngle(timestamp: Date().addingTimeInterval(-3000), angle: 10),
-                PitchAngle(timestamp: Date().addingTimeInterval(-2000), angle: 15),
-                PitchAngle(timestamp: Date().addingTimeInterval(-1000), angle: 5)
+                PitchAngle(timestamp: Date().addingTimeInterval(-2), angle: 10),
+                PitchAngle(timestamp: Date().addingTimeInterval(-1), angle: 15),
+                PitchAngle(timestamp: Date(), angle: 5)
             ]
         ))
     }

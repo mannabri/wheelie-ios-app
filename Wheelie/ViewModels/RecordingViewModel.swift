@@ -185,7 +185,7 @@ class RecordingViewModel: ObservableObject {
         // Only add pitch angle if at least 1 second has passed since the last addition
         guard let lastTimestamp = lastPitchAngleTimestamp else { return }
         let timeSinceLastAddition = Date().timeIntervalSince(lastTimestamp)
-        guard timeSinceLastAddition >= 1.0 else { return }
+        guard timeSinceLastAddition >= 0.1 else { return }
         
         let pitchAngle = PitchAngle(timestamp: Date(), angle: angle)
         recording.pitchAngles.append(pitchAngle)
