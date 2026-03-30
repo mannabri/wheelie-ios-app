@@ -13,52 +13,72 @@ struct RecordingView: View {
     @Binding var isRecordingActive: Bool
     let onRecordingFinished: (Recording) -> Void
     @StateObject private var viewModel = RecordingViewModel()
-
+    
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Karte
-                MapView(
-                    coordinates: viewModel.currentRecording?.coordinates ?? [],
-                    currentLocation: viewModel.currentLocation,
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                // Statistiken wahrend der Aufnahme
-                if viewModel.isRecording, let recording = viewModel.currentRecording {
-                    RecordingStatsView(recording: recording, devicePitchAngle: viewModel.devicePitchAngle)
-                }
-
-                // Steuerungsbuttons
-                RecordingControlsView(
-                    isRecording: viewModel.isRecording,
-                    isPaused: viewModel.isPaused,
-                    onStart: viewModel.startRecording,
-                    onPause: viewModel.pauseRecording,
-                    onResume: viewModel.resumeRecording,
-                    onStop: viewModel.stopRecording
-                )
-                .padding()
+        VStack(spacing: 0) {
+            // Karte
+            MapView(
+                coordinates: viewModel.currentRecording?.coordinates ?? [],
+                currentLocation: viewModel.currentLocation,
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            // Statistiken wahrend der Aufnahme
+            if viewModel.isRecording, let recording = viewModel.currentRecording {
+                RecordingStatsView(recording: recording, devicePitchAngle: viewModel.devicePitchAngle)
             }
-            .navigationTitle("GPS Tracker")
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                viewModel.requestLocationPermission()
-                viewModel.requestMotionPermission()
-                viewModel.setOnRecordingFinished(onRecordingFinished)
-                isRecordingActive = viewModel.isRecording
-            }
-            .onChange(of: viewModel.isRecording) { _, isRecording in
-                isRecordingActive = isRecording
-            }
-            .alert("Fehler", isPresented: .constant(viewModel.errorMessage != nil)) {
-                Button("OK") {
-                    viewModel.errorMessage = nil
-                }
-            } message: {
-                Text(viewModel.errorMessage ?? "")
-            }
+            
+             Steuerungsbuttons
+            RecordingControlsView(
+                isRecording: viewModel.isRecording,
+                isPaused: viewModel.isPaused,
+                onStart: viewModel.startRecording,
+                onPause: viewModel.pauseRecording,
+                onResume: viewModel.resumeRecording,
+                onStop: viewModel.stopRecording
+            )
+            .padding()
         }
+        .onAppear {
+            viewModel.requestLocationPermission()
+            viewModel.requestMotionPermission()
+            viewModel.setOnRecordingFinished(onRecordingFinished)
+            isRecordingActive = viewModel.isRecording
+        }
+        .onChange(of: viewModel.isRecording) { _, isRecording in
+            isRecordingActive = isRecording
+        }
+        .alert("Fehler", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("OK") {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
+        .overlay(alignment: .top) {
+            ZStack {
+                Color.white.opacity(0.6)
+                    .ignoresSafeArea()
+                VStack {
+                    Text("Overlay")
+                }
+            }
+            .frame(height: 100)
+            .clipShape(.rect(cornerRadius: 24))
+            .padding(.horizontal, 8)
+        }
+//        .overlay(alignment: .bottom) {
+//            RecordingControlsView(
+//                isRecording: viewModel.isRecording,
+//                isPaused: viewModel.isPaused,
+//                onStart: viewModel.startRecording,
+//                onPause: viewModel.pauseRecording,
+//                onResume: viewModel.resumeRecording,
+//                onStop: viewModel.stopRecording
+//            )
+//            .padding()
+//        }
+
     }
 }
 

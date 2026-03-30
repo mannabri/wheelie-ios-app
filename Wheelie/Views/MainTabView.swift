@@ -24,6 +24,7 @@ struct MainTabView: View {
                             navigationPath.append("RecordingDetail")
                         }
                     )
+                    .navigationBarHidden(true)
                     .navigationDestination(for: String.self) { destination in
                         if destination == "RecordingDetail", let recording = recordingToShow {
                             RecordingDetailView(recording: recording)
