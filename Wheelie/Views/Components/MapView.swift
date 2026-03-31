@@ -41,6 +41,10 @@ struct MapView: View {
             MapCompass()
             MapScaleView()
         }
+        .safeAreaInset(edge: .top) {
+            Color.clear
+                .frame(height: 100)
+        }
     }
 }
 
