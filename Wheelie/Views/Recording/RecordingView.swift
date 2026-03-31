@@ -19,6 +19,7 @@ struct RecordingView: View {
             MapView(
                 coordinates: viewModel.currentRecording?.coordinates ?? [],
                 currentLocation: viewModel.currentLocation,
+                isRecording: viewModel.isRecording
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             

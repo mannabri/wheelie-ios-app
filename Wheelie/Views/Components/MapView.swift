@@ -13,8 +13,9 @@ struct MapView: View {
     
     let coordinates: [Coordinate]
     let currentLocation: CLLocation?
+    let isRecording: Bool
     
-    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var position: MapCameraPosition = .userLocation(followsHeading: false, fallback: .automatic)
     
     var body: some View {
         Map(position: $position) {
@@ -45,6 +46,11 @@ struct MapView: View {
             Color.clear
                 .frame(height: 100)
         }
+        .onChange(of: isRecording) { _, newValue in // TODO: deprecated -> update
+            if newValue {
+                position = .userLocation(followsHeading: true, fallback: .automatic)
+            }
+        }
     }
 }
 
@@ -52,5 +58,6 @@ struct MapView: View {
     MapView(
         coordinates: [],
         currentLocation: nil,
+        isRecording: false
     )
 }
