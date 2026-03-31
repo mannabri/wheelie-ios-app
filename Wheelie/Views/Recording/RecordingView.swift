@@ -24,7 +24,7 @@ struct RecordingView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
             if viewModel.isRecording, let recording = viewModel.currentRecording {
-                RecordingStatsView(recording: recording, devicePitchAngle: viewModel.devicePitchAngle)
+                RecordingStatsView(recording: recording)
             }
             
             RecordingControlsView(
@@ -54,8 +54,8 @@ struct RecordingView: View {
             Text(viewModel.errorMessage ?? "")
         }
         .overlay(alignment: .top) {
-            if viewModel.isRecording {
-                RecordingWheelieStatsView(devicePitchAngle: viewModel.devicePitchAngle)
+            if viewModel.isRecording, let recording = viewModel.currentRecording  {
+                RecordingWheelieStatsView(devicePitchAngle: recording.devicePitchAngle)
             }
         }
         //        .overlay(alignment: .bottom) {

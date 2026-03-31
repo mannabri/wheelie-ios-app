@@ -11,7 +11,6 @@ import SwiftUI
 struct RecordingStatsView: View {
     
     let recording: Recording
-    let devicePitchAngle: Double
     
     var body: some View {
         HStack(spacing: 20) {
@@ -51,6 +50,5 @@ private struct StatItem: View {
             startDate: Date().addingTimeInterval(-3600),
             coordinates: []
         ),
-        devicePitchAngle: 15.5
     )
 }

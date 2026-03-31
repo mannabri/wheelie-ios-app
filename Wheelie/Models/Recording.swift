@@ -16,6 +16,7 @@ struct Recording: Identifiable, Codable {
     var endDate: Date?
     var coordinates: [Coordinate]
     var pitchAngles: [PitchAngle]
+    var devicePitchAngle: Double = 0.0
     var status: RecordingStatus
     
     init(id: UUID = UUID(), name: String = "", startDate: Date = Date(), endDate: Date? = nil, coordinates: [Coordinate] = [], pitchAngles: [PitchAngle] = [], status: RecordingStatus = .recording) {

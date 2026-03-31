@@ -20,7 +20,6 @@ class RecordingViewModel: ObservableObject {
     @Published var isPaused: Bool = false
     @Published var currentLocation: CLLocation?
     @Published var errorMessage: String?
-    @Published var devicePitchAngle: Double = 0.0
     
     // MARK: - Dependencies
     
@@ -64,7 +63,7 @@ class RecordingViewModel: ObservableObject {
         deviceOrientationManager.$pitchAngle
             .receive(on: DispatchQueue.main)
             .sink { [weak self] angle in
-                self?.devicePitchAngle = angle
+                self?.updateDevicePitchAngle(angle)
                 self?.addPitchAngle(angle)
             }
             .store(in: &cancellables)
@@ -171,6 +170,12 @@ class RecordingViewModel: ObservableObject {
         
         let coordinate = Coordinate(from: location)
         recording.coordinates.append(coordinate)
+        currentRecording = recording
+    }
+    
+    private func updateDevicePitchAngle(_ angle: Double) {
+        guard var recording = currentRecording else { return }
+        recording.devicePitchAngle = angle
         currentRecording = recording
     }
     
