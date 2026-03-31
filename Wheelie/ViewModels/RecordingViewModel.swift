@@ -32,6 +32,7 @@ class RecordingViewModel: ObservableObject {
     
     private var onRecordingFinishedCallback: ((Recording) -> Void)?
     private var lastPitchAngleTimestamp: Date?
+    private var lastBikePitchAngleTimestamp: Date?
     
     // MARK: - Initialization
     
@@ -65,6 +66,7 @@ class RecordingViewModel: ObservableObject {
             .sink { [weak self] angle in
                 self?.updateDevicePitchAngle(angle)
                 self?.addPitchAngle(angle)
+                self?.addBikePitchAngle(angle)
             }
             .store(in: &cancellables)
     }
@@ -112,6 +114,7 @@ class RecordingViewModel: ObservableObject {
         currentRecording = recording
         isPaused = true
         lastPitchAngleTimestamp = nil // Reset timestamp
+        lastBikePitchAngleTimestamp = nil // Reset timestamp
         
         locationManager.pauseTracking()
     }
@@ -138,7 +141,6 @@ class RecordingViewModel: ObservableObject {
         locationManager.stopTracking()
         deviceOrientationManager.stopMonitoring()
         
-        dump(recording) // TODO: remove dump
         
         do {
             try storageManager.saveRecording(recording)
@@ -197,5 +199,26 @@ class RecordingViewModel: ObservableObject {
         recording.pitchAngles.append(pitchAngle)
         currentRecording = recording
         lastPitchAngleTimestamp = Date()
+    }
+    
+    private func addBikePitchAngle(_ angle: Double) {
+        guard var recording = currentRecording, isRecording else { return }
+        guard let initialAngle = recording.initialDevicePitchAngle else { return }
+        
+        // Initialize timestamp on first call
+        if lastBikePitchAngleTimestamp == nil {
+            lastBikePitchAngleTimestamp = Date()
+        }
+        
+        // Only add bike pitch angle if at least 0.1 seconds has passed since the last addition
+        guard let lastTimestamp = lastBikePitchAngleTimestamp else { return }
+        let timeSinceLastAddition = Date().timeIntervalSince(lastTimestamp)
+        guard timeSinceLastAddition >= 0.1 else { return }
+        
+        let bikePitchAngle = angle - initialAngle
+        let bikePitchAngleObject = PitchAngle(timestamp: Date(), angle: max(0.0, bikePitchAngle))
+        recording.bikePitchAngles.append(bikePitchAngleObject)
+        currentRecording = recording
+        lastBikePitchAngleTimestamp = Date()
     }
 }

@@ -41,6 +41,12 @@ struct RecordingDetailView: View {
                         .padding(.top, 16)
                         .frame(height: 300)
                 }
+                if !viewModel.recording.bikePitchAngles.isEmpty {
+                    PitchAnglesListView(pitchAngles: viewModel.recording.bikePitchAngles)
+                        .padding(.horizontal)
+                        .padding(.top, 16)
+                        .frame(height: 300)
+                }
             }
         }
         .navigationTitle(viewModel.recording.name)
@@ -129,6 +135,11 @@ private struct RecordingInfoView: View {
                 Coordinate(latitude: 52.522, longitude: 13.407)
             ],
             pitchAngles: [
+                PitchAngle(timestamp: Date().addingTimeInterval(-2), angle: 10),
+                PitchAngle(timestamp: Date().addingTimeInterval(-1), angle: 15),
+                PitchAngle(timestamp: Date(), angle: 5)
+            ],
+            bikePitchAngles: [
                 PitchAngle(timestamp: Date().addingTimeInterval(-2), angle: 10),
                 PitchAngle(timestamp: Date().addingTimeInterval(-1), angle: 15),
                 PitchAngle(timestamp: Date(), angle: 5)
