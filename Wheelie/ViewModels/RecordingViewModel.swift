@@ -88,7 +88,8 @@ class RecordingViewModel: ObservableObject {
     
     /// Startet eine neue GPS-Aufnahme
     func startRecording() {
-        let recording = Recording(startDate: Date(), status: .recording)
+        var recording = Recording(startDate: Date(), status: .recording)
+        recording.initialDevicePitchAngle = deviceOrientationManager.pitchAngle
         currentRecording = recording
         isRecording = true
         isPaused = false

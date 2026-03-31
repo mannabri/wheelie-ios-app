@@ -17,6 +17,7 @@ struct Recording: Identifiable, Codable {
     var coordinates: [Coordinate]
     var pitchAngles: [PitchAngle]
     var devicePitchAngle: Double = 0.0
+    var initialDevicePitchAngle: Double?
     var status: RecordingStatus
     
     init(id: UUID = UUID(), name: String = "", startDate: Date = Date(), endDate: Date? = nil, coordinates: [Coordinate] = [], pitchAngles: [PitchAngle] = [], status: RecordingStatus = .recording) {
@@ -30,6 +31,13 @@ struct Recording: Identifiable, Codable {
     }
     
     // MARK: - Computed Properties
+    
+    /// Berechneter Bike-Pitch-Winkel (devicePitchAngle - initialDevicePitchAngle)
+    var bikePitchAngle: Double {
+        guard let initial = initialDevicePitchAngle else { return 0.0 }
+        let angle = devicePitchAngle - initial
+        return max(0.0, angle) // Minimum 0°
+    }
     
     /// Gesamtdauer der Aufnahme in Sekunden
     var duration: TimeInterval {
@@ -93,4 +101,25 @@ enum RecordingStatus: String, Codable {
     case recording = "recording"
     case paused = "paused"
     case stopped = "stopped"
+}
+
+// MARK: - Codable Implementation
+// TODO: check if this is really necessary
+extension Recording {
+    enum CodingKeys: String, CodingKey {
+        case id, name, startDate, endDate, coordinates, pitchAngles, devicePitchAngle, initialDevicePitchAngle, status
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        startDate = try container.decode(Date.self, forKey: .startDate)
+        endDate = try container.decodeIfPresent(Date.self, forKey: .endDate)
+        coordinates = try container.decode([Coordinate].self, forKey: .coordinates)
+        pitchAngles = try container.decode([PitchAngle].self, forKey: .pitchAngles)
+        devicePitchAngle = try container.decodeIfPresent(Double.self, forKey: .devicePitchAngle) ?? 0.0
+        initialDevicePitchAngle = try container.decodeIfPresent(Double.self, forKey: .initialDevicePitchAngle)
+        status = try container.decode(RecordingStatus.self, forKey: .status)
+    }
 }
