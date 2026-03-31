@@ -53,18 +53,8 @@ struct RecordingView: View {
             Text(viewModel.errorMessage ?? "")
         }
         .overlay(alignment: .top) {
-            if viewModel.isRecording, let recording = viewModel.currentRecording {
-                
-                ZStack {
-                    Color.white.opacity(0.6)
-                        .ignoresSafeArea()
-                    VStack {
-                        Text("Overlay")
-                    }
-                }
-                .frame(height: 100)
-                .clipShape(.rect(cornerRadius: 24))
-                .padding(.horizontal, 8)
+            if viewModel.isRecording {
+                RecordingWheelieStatsView(devicePitchAngle: viewModel.devicePitchAngle)
             }
         }
         //        .overlay(alignment: .bottom) {

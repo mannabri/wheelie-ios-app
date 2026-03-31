@@ -16,21 +16,6 @@ struct RecordingStatsView: View {
     var body: some View {
         HStack(spacing: 20) {
             StatItem(title: "Dauer", value: recording.formattedDuration, icon: "clock")
-            
-            Divider()
-                .frame(height: 40)
-            
-            StatItem(title: "Distanz", value: recording.formattedDistance, icon: "arrow.left.and.right")
-            
-            Divider()
-                .frame(height: 40)
-            
-            StatItem(title: "Punkte", value: "\(recording.coordinates.count)", icon: "mappin")
-            
-            Divider()
-                .frame(height: 40)
-            
-            StatItem(title: "Winkel", value: String(format: "%.1f°", devicePitchAngle), icon: "phone.badge.checkmark")
         }
         .padding()
         .background(Color(.systemBackground))
