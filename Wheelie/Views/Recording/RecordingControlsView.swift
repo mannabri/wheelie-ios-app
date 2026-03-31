@@ -29,16 +29,6 @@ struct RecordingControlsView: View {
                         .background(Color.red)
                         .clipShape(Circle())
                 }
-                
-                // Pause/Resume Button
-                Button(action: isPaused ? onResume : onPause) {
-                    Image(systemName: isPaused ? "play.fill" : "pause.fill")
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .frame(width: 60, height: 60)
-                        .background(isPaused ? Color.green : Color.orange)
-                        .clipShape(Circle())
-                }
             } else {
                 // Start Button
                 Button(action: onStart) {
