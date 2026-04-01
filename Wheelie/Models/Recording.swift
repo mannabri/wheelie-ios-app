@@ -16,9 +16,9 @@ struct Recording: Identifiable, Codable {
     var endDate: Date?
     var coordinates: [Coordinate]
     var bikePitchAngles: [PitchAngle]
-    var devicePitchAngle: Double = 0.0
-    var initialDevicePitchAngle: Double?
-    var status: RecordingStatus
+    var devicePitchAngle: Double = 0.0 // TODO: move to view model
+    var initialDevicePitchAngle: Double? // TODO: move to view model
+    var status: RecordingStatus // TODO: check if necessary? 
     
     init(id: UUID = UUID(), name: String = "", startDate: Date = Date(), endDate: Date? = nil, coordinates: [Coordinate] = [], bikePitchAngles: [PitchAngle] = [], status: RecordingStatus = .recording) {
         self.id = id
