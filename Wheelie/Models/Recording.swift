@@ -19,7 +19,6 @@ struct Recording: Identifiable, Codable {
     var devicePitchAngle: Double = 0.0
     var initialDevicePitchAngle: Double?
     var status: RecordingStatus
-    var isWheelie: Bool = false
     
     init(id: UUID = UUID(), name: String = "", startDate: Date = Date(), endDate: Date? = nil, coordinates: [Coordinate] = [], bikePitchAngles: [PitchAngle] = [], status: RecordingStatus = .recording) {
         self.id = id

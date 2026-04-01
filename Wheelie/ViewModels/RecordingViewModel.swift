@@ -20,6 +20,7 @@ class RecordingViewModel: ObservableObject {
     @Published var isPaused: Bool = false
     @Published var currentLocation: CLLocation?
     @Published var errorMessage: String?
+    @Published var isWheelie: Bool = false
     
     // MARK: - Dependencies
     
@@ -32,7 +33,6 @@ class RecordingViewModel: ObservableObject {
     
     private var onRecordingFinishedCallback: ((Recording) -> Void)?
     private var lastBikePitchAngleTimestamp: Date?
-    private var isInWheelieState: Bool = false // Track wheelie state
     
     // MARK: - Initialization
     
@@ -94,6 +94,7 @@ class RecordingViewModel: ObservableObject {
         currentRecording = recording
         isRecording = true
         isPaused = false
+        isWheelie = false
         
         deviceOrientationManager.startMonitoring()
         
@@ -151,6 +152,7 @@ class RecordingViewModel: ObservableObject {
         currentRecording = nil
         isRecording = false
         isPaused = false
+        isWheelie = false
     }
     
     /// Verwirft die aktuelle Aufnahme ohne Speichern
@@ -160,6 +162,7 @@ class RecordingViewModel: ObservableObject {
         currentRecording = nil
         isRecording = false
         isPaused = false
+        isWheelie = false
     }
     
     // MARK: - Private Methods
@@ -197,13 +200,13 @@ class RecordingViewModel: ObservableObject {
         recording.bikePitchAngles.append(bikePitchAngleObject)
         
         // Detect wheelie state
-        recording.isWheelie = detectWheelieState(bikePitchAngle: max(0.0, bikePitchAngle))
+        detectWheelieState(bikePitchAngle: max(0.0, bikePitchAngle))
         
         currentRecording = recording
         lastBikePitchAngleTimestamp = Date()
     }
     
-    private func detectWheelieState(bikePitchAngle: Double) -> Bool {
+    private func detectWheelieState(bikePitchAngle: Double) {
         // Wheelie detection thresholds:
         // - Enter wheelie when pitch angle >= 15°
         // - Exit wheelie when pitch angle < 5°
@@ -211,13 +214,11 @@ class RecordingViewModel: ObservableObject {
         
         if bikePitchAngle >= 15.0 {
             // Enter or stay in wheelie
-            isInWheelieState = true
+            isWheelie = true
         } else if bikePitchAngle < 5.0 {
             // Exit wheelie
-            isInWheelieState = false
+            isWheelie = false
         }
         // If 5° <= angle < 15°, maintain current wheelie state
-        
-        return isInWheelieState
     }
 }
