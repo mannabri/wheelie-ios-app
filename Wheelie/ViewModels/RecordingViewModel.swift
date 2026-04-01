@@ -32,6 +32,7 @@ class RecordingViewModel: ObservableObject {
     
     private var onRecordingFinishedCallback: ((Recording) -> Void)?
     private var lastBikePitchAngleTimestamp: Date?
+    private var isInWheelieState: Bool = false // Track wheelie state
     
     // MARK: - Initialization
     
@@ -194,7 +195,29 @@ class RecordingViewModel: ObservableObject {
         let bikePitchAngle = angle - initialAngle
         let bikePitchAngleObject = PitchAngle(timestamp: Date(), angle: max(0.0, bikePitchAngle))
         recording.bikePitchAngles.append(bikePitchAngleObject)
+        
+        // Detect wheelie state
+        recording.isWheelie = detectWheelieState(bikePitchAngle: max(0.0, bikePitchAngle))
+        
         currentRecording = recording
         lastBikePitchAngleTimestamp = Date()
+    }
+    
+    private func detectWheelieState(bikePitchAngle: Double) -> Bool {
+        // Wheelie detection thresholds:
+        // - Enter wheelie when pitch angle >= 15°
+        // - Exit wheelie when pitch angle < 5°
+        // - Once in wheelie, can drop below 15° but stays in wheelie until < 5°
+        
+        if bikePitchAngle >= 15.0 {
+            // Enter or stay in wheelie
+            isInWheelieState = true
+        } else if bikePitchAngle < 5.0 {
+            // Exit wheelie
+            isInWheelieState = false
+        }
+        // If 5° <= angle < 15°, maintain current wheelie state
+        
+        return isInWheelieState
     }
 }

@@ -9,10 +9,12 @@ import SwiftUI
 
 struct RecordingWheelieStatsView: View {
     let bikePitchAngle: Double
+    let isWheelie: Bool
     
     var body: some View {
         ZStack {
-            Color.white.opacity(0.95)
+            (isWheelie ? Color.green : Color.white)
+                .opacity(0.95)
                 .ignoresSafeArea()
             VStack(spacing: 8) {
                 HStack(spacing: 16) {
@@ -20,6 +22,7 @@ struct RecordingWheelieStatsView: View {
                         Text(String(format: "%.1f°", bikePitchAngle))
                             .font(.largeTitle)
                             .fontWeight(.semibold)
+                            .foregroundColor(.black)
                     }
                 }
                 .padding(.horizontal, 16)
@@ -34,6 +37,9 @@ struct RecordingWheelieStatsView: View {
 #Preview {
     ZStack {
         Color(.systemGray5).ignoresSafeArea()
-        RecordingWheelieStatsView(bikePitchAngle: 5.2)
+        VStack {
+            RecordingWheelieStatsView(bikePitchAngle: 5.2, isWheelie: false)
+            RecordingWheelieStatsView(bikePitchAngle: 20, isWheelie: true)
+        }
     }
 }
