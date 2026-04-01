@@ -31,7 +31,6 @@ class RecordingViewModel: ObservableObject {
     // MARK: - Private Properties
     
     private var onRecordingFinishedCallback: ((Recording) -> Void)?
-    private var lastPitchAngleTimestamp: Date?
     private var lastBikePitchAngleTimestamp: Date?
     
     // MARK: - Initialization
@@ -65,7 +64,6 @@ class RecordingViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] angle in
                 self?.updateDevicePitchAngle(angle)
-                self?.addPitchAngle(angle)
                 self?.addBikePitchAngle(angle)
             }
             .store(in: &cancellables)
@@ -95,7 +93,6 @@ class RecordingViewModel: ObservableObject {
         currentRecording = recording
         isRecording = true
         isPaused = false
-        lastPitchAngleTimestamp = nil // Reset pitch angle timestamp
         
         deviceOrientationManager.startMonitoring()
         
@@ -113,7 +110,6 @@ class RecordingViewModel: ObservableObject {
         recording.status = .paused
         currentRecording = recording
         isPaused = true
-        lastPitchAngleTimestamp = nil // Reset timestamp
         lastBikePitchAngleTimestamp = nil // Reset timestamp
         
         locationManager.pauseTracking()
@@ -126,7 +122,6 @@ class RecordingViewModel: ObservableObject {
         recording.status = .recording
         currentRecording = recording
         isPaused = false
-        lastPitchAngleTimestamp = nil // Reset timestamp
         
         locationManager.resumeTracking()
     }
@@ -180,25 +175,6 @@ class RecordingViewModel: ObservableObject {
         guard var recording = currentRecording else { return }
         recording.devicePitchAngle = angle
         currentRecording = recording
-    }
-    
-    private func addPitchAngle(_ angle: Double) {
-        guard var recording = currentRecording, isRecording else { return }
-        
-        // Initialize timestamp on first call
-        if lastPitchAngleTimestamp == nil {
-            lastPitchAngleTimestamp = Date()
-        }
-        
-        // Only add pitch angle if at least 1 second has passed since the last addition
-        guard let lastTimestamp = lastPitchAngleTimestamp else { return }
-        let timeSinceLastAddition = Date().timeIntervalSince(lastTimestamp)
-        guard timeSinceLastAddition >= 0.1 else { return }
-        
-        let pitchAngle = PitchAngle(timestamp: Date(), angle: angle)
-        recording.pitchAngles.append(pitchAngle)
-        currentRecording = recording
-        lastPitchAngleTimestamp = Date()
     }
     
     private func addBikePitchAngle(_ angle: Double) {

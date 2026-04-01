@@ -32,7 +32,6 @@ class RecordingDetailViewModel: ObservableObject {
             ("Distanz", recording.formattedDistance),
             ("Ø Geschwindigkeit", recording.formattedAverageSpeed),
             ("Punkte", "\(recording.coordinates.count)"),
-            ("Pitch Messungen", "\(recording.pitchAngles.count)")
         ]
     }
     

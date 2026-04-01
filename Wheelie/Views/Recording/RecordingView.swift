@@ -55,7 +55,7 @@ struct RecordingView: View {
         }
         .overlay(alignment: .top) {
             if viewModel.isRecording, let recording = viewModel.currentRecording  {
-                RecordingWheelieStatsView(devicePitchAngle: recording.devicePitchAngle, bikePitchAngle: recording.bikePitchAngle)
+                RecordingWheelieStatsView(bikePitchAngle: recording.bikePitchAngle)
             }
         }
         //        .overlay(alignment: .bottom) {

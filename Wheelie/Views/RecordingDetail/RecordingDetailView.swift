@@ -20,32 +20,23 @@ struct RecordingDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // Karte mit Route
                 RouteMapView(
                     coordinates: viewModel.routeCoordinates,
                     region: $viewModel.mapRegion
                 )
                 .frame(height: 350)
                 
-                // Statistiken
                 StatisticsGridView(statistics: viewModel.statistics)
                     .padding()
                 
-                // Zusätzliche Infos
                 RecordingInfoView(recording: viewModel.recording)
                     .padding(.horizontal)
-                // Pitch Angles Liste
-                if !viewModel.recording.pitchAngles.isEmpty {
-                    PitchAnglesListView(pitchAngles: viewModel.recording.pitchAngles)
-                        .padding(.horizontal)
-                        .padding(.top, 16)
-                        .frame(height: 300)
-                }
+
                 if !viewModel.recording.bikePitchAngles.isEmpty {
                     PitchAnglesListView(pitchAngles: viewModel.recording.bikePitchAngles)
                         .padding(.horizontal)
                         .padding(.top, 16)
-                        .frame(height: 300)
+                        .frame(height: 100)
                 }
             }
         }
@@ -133,11 +124,6 @@ private struct RecordingInfoView: View {
                 Coordinate(latitude: 52.52, longitude: 13.405),
                 Coordinate(latitude: 52.521, longitude: 13.406),
                 Coordinate(latitude: 52.522, longitude: 13.407)
-            ],
-            pitchAngles: [
-                PitchAngle(timestamp: Date().addingTimeInterval(-2), angle: 10),
-                PitchAngle(timestamp: Date().addingTimeInterval(-1), angle: 15),
-                PitchAngle(timestamp: Date(), angle: 5)
             ],
             bikePitchAngles: [
                 PitchAngle(timestamp: Date().addingTimeInterval(-2), angle: 10),
