@@ -126,9 +126,21 @@ private struct RecordingInfoView: View {
                 Coordinate(latitude: 52.522, longitude: 13.407)
             ],
             bikePitchAngles: [
-                PitchAngle(timestamp: Date().addingTimeInterval(-2), angle: 10),
-                PitchAngle(timestamp: Date().addingTimeInterval(-1), angle: 15),
-                PitchAngle(timestamp: Date(), angle: 5)
+                PitchAngle(timestamp: Date().addingTimeInterval(-14), angle: 0),
+                PitchAngle(timestamp: Date().addingTimeInterval(-13), angle: 0),
+                PitchAngle(timestamp: Date().addingTimeInterval(-12), angle: 0),
+                PitchAngle(timestamp: Date().addingTimeInterval(-11), angle: 0),
+                PitchAngle(timestamp: Date().addingTimeInterval(-10), angle: 0),
+                PitchAngle(timestamp: Date().addingTimeInterval(-9), angle: 0),
+                PitchAngle(timestamp: Date().addingTimeInterval(-8), angle: 10),
+                PitchAngle(timestamp: Date().addingTimeInterval(-7), angle: 15),
+                PitchAngle(timestamp: Date().addingTimeInterval(-6), angle: 20),
+                PitchAngle(timestamp: Date().addingTimeInterval(-5), angle: 30),
+                PitchAngle(timestamp: Date().addingTimeInterval(-4), angle: 15),
+                PitchAngle(timestamp: Date().addingTimeInterval(-3), angle: 10),
+                PitchAngle(timestamp: Date().addingTimeInterval(-2), angle: 5),
+                PitchAngle(timestamp: Date().addingTimeInterval(-1), angle: 4),
+                PitchAngle(timestamp: Date(), angle: 0)
             ]
         ))
     }
