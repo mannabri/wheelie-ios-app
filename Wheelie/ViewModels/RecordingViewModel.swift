@@ -33,6 +33,7 @@ class RecordingViewModel: ObservableObject {
     
     private var onRecordingFinishedCallback: ((Recording) -> Void)?
     private var lastBikePitchAngleTimestamp: Date?
+    private var currentWheelieStart: Date? // Track wheelie start time
     
     // MARK: - Initialization
     
@@ -114,6 +115,14 @@ class RecordingViewModel: ObservableObject {
         isPaused = true
         lastBikePitchAngleTimestamp = nil // Reset timestamp
         
+        // End current wheelie if ongoing
+        if isWheelie, let wheelieStart = currentWheelieStart {
+            let wheelie = Wheelie(startDate: wheelieStart, endDate: Date())
+            recording.wheelies.append(wheelie)
+            currentRecording = recording
+            currentWheelieStart = nil
+        }
+        
         locationManager.pauseTracking()
     }
     
@@ -134,6 +143,13 @@ class RecordingViewModel: ObservableObject {
         
         recording.status = .stopped
         recording.endDate = Date()
+        
+        // End current wheelie if ongoing
+        if isWheelie, let wheelieStart = currentWheelieStart {
+            let wheelie = Wheelie(startDate: wheelieStart, endDate: Date())
+            recording.wheelies.append(wheelie)
+            currentWheelieStart = nil
+        }
         
         locationManager.stopTracking()
         deviceOrientationManager.stopMonitoring()
@@ -163,6 +179,7 @@ class RecordingViewModel: ObservableObject {
         isRecording = false
         isPaused = false
         isWheelie = false
+        currentWheelieStart = nil
     }
     
     // MARK: - Private Methods
@@ -200,17 +217,19 @@ class RecordingViewModel: ObservableObject {
         recording.bikePitchAngles.append(bikePitchAngleObject)
         
         // Detect wheelie state
-        detectWheelieState(bikePitchAngle: max(0.0, bikePitchAngle))
+        detectWheelieState(bikePitchAngle: max(0.0, bikePitchAngle), recording: &recording)
         
         currentRecording = recording
         lastBikePitchAngleTimestamp = Date()
     }
     
-    private func detectWheelieState(bikePitchAngle: Double) {
+    private func detectWheelieState(bikePitchAngle: Double, recording: inout Recording) {
         // Wheelie detection thresholds:
         // - Enter wheelie when pitch angle >= 15°
         // - Exit wheelie when pitch angle < 5°
         // - Once in wheelie, can drop below 15° but stays in wheelie until < 5°
+        
+        let wasWheelie = isWheelie
         
         if bikePitchAngle >= 15.0 {
             // Enter or stay in wheelie
@@ -220,5 +239,18 @@ class RecordingViewModel: ObservableObject {
             isWheelie = false
         }
         // If 5° <= angle < 15°, maintain current wheelie state
+        
+        // Handle wheelie state transitions
+        if !wasWheelie && isWheelie {
+            // Entering wheelie
+            currentWheelieStart = Date()
+        } else if wasWheelie && !isWheelie {
+            // Exiting wheelie
+            if let wheelieStart = currentWheelieStart {
+                let wheelie = Wheelie(startDate: wheelieStart, endDate: Date())
+                recording.wheelies.append(wheelie)
+                currentWheelieStart = nil
+            }
+        }
     }
 }
