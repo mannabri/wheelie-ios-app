@@ -12,19 +12,26 @@ struct PitchAnglesListView: View {
     let pitchAngles: [PitchAngle]
     
     var body: some View {
-        Chart {
-            ForEach(pitchAngles) { pitch in
-                LineMark(
-                    x: .value("Time", pitch.timestamp),
-                    y: .value("Angle", pitch.angle)
-                )
+        VStack (alignment: .leading, spacing: 12) {
+            Text("Angles")
+                .font(.headline)
+            Chart {
+                ForEach(pitchAngles) { pitch in
+                    LineMark(
+                        x: .value("Time", pitch.timestamp),
+                        y: .value("Angle", pitch.angle)
+                    )
+                }
+            }
+            .chartXAxis {
+                AxisMarks(values: .automatic(desiredCount: 5)) { value in
+                    AxisValueLabel(format: .dateTime.hour().minute()) // Format axis labels
+                }
             }
         }
-        .chartXAxis {
-            AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                AxisValueLabel(format: .dateTime.hour().minute()) // Format axis labels
-            }
-        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(12)
     }
 }
 

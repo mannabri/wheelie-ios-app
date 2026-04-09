@@ -25,37 +25,24 @@ struct WheeliesChartView: View {
             Text("Wheelies")
                 .font(.headline)
             
-            if wheelies.isEmpty {
-                Text("No wheelies recorded")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding()
-            } else {
-                Chart {
-                    ForEach(wheelies, id: \.id) { wheelie in
-                        BarMark(
-                            x: .value("Time", wheelie.startDate),
-                            y: .value("Duration (s)", Int(wheelie.duration))
-                        )
-                        .foregroundStyle(.blue)
-                        .opacity(0.8)
-                    }
+            Chart {
+                ForEach(wheelies, id: \.id) { wheelie in
+                    BarMark(
+                        x: .value("Time", wheelie.startDate),
+                        y: .value("Duration (s)", Int(wheelie.duration))
+                    )
+                    .foregroundStyle(.blue)
+                    .opacity(0.8)
                 }
-                .chartXAxisLabel("Start Time")
-                .chartYAxisLabel("Duration (seconds)")
-                .chartXAxis {
-                    AxisMarks(position: .bottom) { value in
-                        AxisValueLabel(format: .dateTime.hour().minute())
-                            .font(.caption2)
-                    }
-                }
-                .chartYAxis {
-                    AxisMarks(position: .leading)
-                }
-                .frame(height: 250)
-                .padding(.vertical, 8)
             }
+            .chartXAxis {
+                AxisMarks(position: .bottom) { value in
+                    AxisValueLabel(format: .dateTime.hour().minute())
+                        .font(.caption2)
+                }
+            }
+            .padding(.vertical, 8)
+            
         }
         .padding()
         .background(Color(.secondarySystemBackground))
