@@ -35,13 +35,17 @@ struct WheeliesChartView: View {
                     .opacity(0.8)
                 }
             }
-            .chartXAxis {
-                AxisMarks(position: .bottom) { value in
-                    AxisValueLabel(format: .dateTime.hour().minute())
-                        .font(.caption2)
+            .chartYAxis {
+                AxisMarks { value in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel {
+                        if let intValue = value.as(Int.self) {
+                            Text("\(intValue)s")
+                        }
+                    }
                 }
             }
-            .padding(.vertical, 8)
             
         }
         .padding()

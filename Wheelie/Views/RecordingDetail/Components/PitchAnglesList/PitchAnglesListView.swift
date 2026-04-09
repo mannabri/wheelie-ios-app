@@ -24,8 +24,19 @@ struct PitchAnglesListView: View {
                 }
             }
             .chartXAxis {
-                AxisMarks(values: .automatic(desiredCount: 5)) { value in
-                    AxisValueLabel(format: .dateTime.hour().minute()) // Format axis labels
+                AxisMarks { value in
+                    AxisValueLabel(format: .dateTime.hour().minute())
+                }
+            }
+            .chartYAxis {
+                AxisMarks { value in
+                    AxisGridLine()
+                    AxisTick()
+                    AxisValueLabel {
+                        if let intValue = value.as(Int.self) {
+                            Text("\(intValue)°")
+                        }
+                    }
                 }
             }
         }
