@@ -21,8 +21,9 @@ struct RecordingDetailView: View {
         ScrollView {
             VStack(spacing: 0) {
                 RouteMapView(
-                    coordinates: viewModel.routeCoordinates,
-                    region: $viewModel.mapRegion
+                    coordinates: viewModel.coordinates,
+                    region: $viewModel.mapRegion,
+                    wheelies: viewModel.recording.wheelies
                 )
                 .frame(height: 350)
                 

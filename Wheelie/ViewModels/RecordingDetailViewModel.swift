@@ -24,6 +24,11 @@ class RecordingDetailViewModel: ObservableObject {
     var routeCoordinates: [CLLocationCoordinate2D] {
         recording.coordinates.map { $0.coordinate2D }
     }
+
+    /// Raw Coordinate array for RouteMapView (includes timestamps for wheelie highlighting)
+    var coordinates: [Coordinate] {
+        recording.coordinates
+    }
     
     /// Statistiken der Aufnahme
     var statistics: [(title: String, value: String)] {
