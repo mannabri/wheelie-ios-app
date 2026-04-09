@@ -19,7 +19,8 @@ struct RecordingView: View {
             MapView(
                 coordinates: viewModel.currentRecording?.coordinates ?? [],
                 currentLocation: viewModel.currentLocation,
-                isRecording: viewModel.isRecording
+                isRecording: viewModel.isRecording,
+                wheelies: viewModel.allWheeliesIncludingOngoing
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             

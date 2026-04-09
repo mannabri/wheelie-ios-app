@@ -23,6 +23,15 @@ class RecordingViewModel: ObservableObject {
     @Published var isWheelie: Bool = false
     @Published var currentWheelieDuration: TimeInterval = 0
     
+    /// All wheelies including the currently ongoing one (for real-time map highlighting)
+    var allWheeliesIncludingOngoing: [Wheelie] {
+        var result = currentRecording?.wheelies ?? []
+        if isWheelie, let start = currentWheelieStart {
+            result.append(Wheelie(startDate: start, endDate: nil))
+        }
+        return result
+    }
+    
     // MARK: - Dependencies
     
     private let locationManager: LocationManager
