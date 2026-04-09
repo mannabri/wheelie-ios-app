@@ -48,6 +48,9 @@ struct PitchAnglesListView: View {
 
 #Preview {
     PitchAnglesListView(pitchAngles: [
+        PitchAngle(timestamp: Date().addingTimeInterval(-9), angle: 0),
+        PitchAngle(timestamp: Date().addingTimeInterval(-8), angle: 3),
+        PitchAngle(timestamp: Date().addingTimeInterval(-7), angle: 4),
         PitchAngle(timestamp: Date().addingTimeInterval(-6), angle: 15),
         PitchAngle(timestamp: Date().addingTimeInterval(-5), angle: 10),
         PitchAngle(timestamp: Date().addingTimeInterval(-4), angle: 10),

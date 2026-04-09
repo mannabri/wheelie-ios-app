@@ -20,6 +20,10 @@ struct WheeliesChartView: View {
         return formatter
     }()
     
+    private var bestWheelieID: UUID? {
+        wheelies.max(by: { $0.duration < $1.duration })?.id
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Wheelies")
@@ -27,12 +31,20 @@ struct WheeliesChartView: View {
             
             Chart {
                 ForEach(wheelies, id: \.id) { wheelie in
+                    let isBest = wheelie.id == bestWheelieID
                     BarMark(
                         x: .value("Time", wheelie.startDate),
                         y: .value("Duration (s)", Int(wheelie.duration))
                     )
-                    .foregroundStyle(.blue)
-                    .opacity(0.8)
+                    .foregroundStyle(isBest ? Color.yellow : Color.blue)
+                    .opacity(isBest ? 1.0 : 0.8)
+                    .annotation(position: .top) {
+                        if isBest {
+                            Image(systemName: "trophy.fill")
+                                .foregroundStyle(Color.yellow)
+                                .font(.caption)
+                        }
+                    }
                 }
             }
             .chartYAxis {
