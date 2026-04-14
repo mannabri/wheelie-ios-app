@@ -10,6 +10,19 @@ import SwiftUI
 struct RecordingWheelieStatsView: View {
     let bikePitchAngle: Double
     let isWheelie: Bool
+    let wheelieDuration: TimeInterval
+    
+    private var formattedDuration: String {
+        if !isWheelie {
+            return "00:00"
+        }
+        
+        let minutes = Int(wheelieDuration) / 60
+        let seconds = Int(wheelieDuration) % 60
+        let milliseconds = Int((wheelieDuration.truncatingRemainder(dividingBy: 1)) * 100)
+        
+        return String(format: "%02d:%02d.%02d", minutes, seconds, milliseconds)
+    }
     
     var body: some View {
         ZStack {
@@ -18,13 +31,12 @@ struct RecordingWheelieStatsView: View {
                 .ignoresSafeArea()
             VStack(spacing: 8) {
                 HStack(spacing: 16) {
-                    VStack(spacing: 4) {
-                        Text(String(format: "%.1f°", bikePitchAngle))
-                            .font(.largeTitle)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.black)
-                    }
+                    Text(String(format: "%.1f°", bikePitchAngle))
+                    Text(formattedDuration)
                 }
+                .font(.largeTitle)
+                .fontWeight(.semibold)
+                .foregroundColor(.black)
                 .padding(.horizontal, 16)
             }
         }
@@ -38,8 +50,8 @@ struct RecordingWheelieStatsView: View {
     ZStack {
         Color(.systemGray5).ignoresSafeArea()
         VStack {
-            RecordingWheelieStatsView(bikePitchAngle: 5.2, isWheelie: false)
-            RecordingWheelieStatsView(bikePitchAngle: 20, isWheelie: true)
+            RecordingWheelieStatsView(bikePitchAngle: 5.2, isWheelie: false, wheelieDuration: 0)
+            RecordingWheelieStatsView(bikePitchAngle: 20, isWheelie: true, wheelieDuration: 3.52)
         }
     }
 }

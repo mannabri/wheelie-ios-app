@@ -21,6 +21,16 @@ class RecordingViewModel: ObservableObject {
     @Published var currentLocation: CLLocation?
     @Published var errorMessage: String?
     @Published var isWheelie: Bool = false
+    @Published var currentWheelieDuration: TimeInterval = 0
+    
+    /// All wheelies including the currently ongoing one (for real-time map highlighting)
+    var allWheeliesIncludingOngoing: [Wheelie] {
+        var result = currentRecording?.wheelies ?? []
+        if isWheelie, let start = currentWheelieStart {
+            result.append(Wheelie(startDate: start, endDate: nil))
+        }
+        return result
+    }
     
     // MARK: - Dependencies
     
@@ -33,6 +43,8 @@ class RecordingViewModel: ObservableObject {
     
     private var onRecordingFinishedCallback: ((Recording) -> Void)?
     private var lastBikePitchAngleTimestamp: Date?
+    private var currentWheelieStart: Date? // Track wheelie start time
+    private var wheelieDurationTimer: Timer?
     
     // MARK: - Initialization
     
@@ -114,6 +126,14 @@ class RecordingViewModel: ObservableObject {
         isPaused = true
         lastBikePitchAngleTimestamp = nil // Reset timestamp
         
+        // End current wheelie if ongoing
+        if isWheelie, let wheelieStart = currentWheelieStart {
+            let wheelie = Wheelie(startDate: wheelieStart, endDate: Date())
+            recording.wheelies.append(wheelie)
+            currentRecording = recording
+            currentWheelieStart = nil
+        }
+        
         locationManager.pauseTracking()
     }
     
@@ -135,6 +155,15 @@ class RecordingViewModel: ObservableObject {
         recording.status = .stopped
         recording.endDate = Date()
         
+        // End current wheelie if ongoing
+        if isWheelie, let wheelieStart = currentWheelieStart {
+            let wheelie = Wheelie(startDate: wheelieStart, endDate: Date())
+            recording.wheelies.append(wheelie)
+            currentWheelieStart = nil
+        }
+        
+        stopWheelieTimer()
+        
         locationManager.stopTracking()
         deviceOrientationManager.stopMonitoring()
         
@@ -153,16 +182,20 @@ class RecordingViewModel: ObservableObject {
         isRecording = false
         isPaused = false
         isWheelie = false
+        currentWheelieDuration = 0
     }
     
     /// Verwirft die aktuelle Aufnahme ohne Speichern
     func discardRecording() {
+        stopWheelieTimer()
         locationManager.stopTracking()
         deviceOrientationManager.stopMonitoring()
         currentRecording = nil
         isRecording = false
         isPaused = false
         isWheelie = false
+        currentWheelieDuration = 0
+        currentWheelieStart = nil
     }
     
     // MARK: - Private Methods
@@ -200,17 +233,19 @@ class RecordingViewModel: ObservableObject {
         recording.bikePitchAngles.append(bikePitchAngleObject)
         
         // Detect wheelie state
-        detectWheelieState(bikePitchAngle: max(0.0, bikePitchAngle))
+        detectWheelieState(bikePitchAngle: max(0.0, bikePitchAngle), recording: &recording)
         
         currentRecording = recording
         lastBikePitchAngleTimestamp = Date()
     }
     
-    private func detectWheelieState(bikePitchAngle: Double) {
+    private func detectWheelieState(bikePitchAngle: Double, recording: inout Recording) {
         // Wheelie detection thresholds:
         // - Enter wheelie when pitch angle >= 15°
         // - Exit wheelie when pitch angle < 5°
         // - Once in wheelie, can drop below 15° but stays in wheelie until < 5°
+        
+        let wasWheelie = isWheelie
         
         if bikePitchAngle >= 15.0 {
             // Enter or stay in wheelie
@@ -220,5 +255,37 @@ class RecordingViewModel: ObservableObject {
             isWheelie = false
         }
         // If 5° <= angle < 15°, maintain current wheelie state
+        
+        // Handle wheelie state transitions
+        if !wasWheelie && isWheelie {
+            // Entering wheelie
+            currentWheelieStart = Date()
+            currentWheelieDuration = 0
+            startWheelieTimer()
+        } else if wasWheelie && !isWheelie {
+            // Exiting wheelie
+            stopWheelieTimer()
+            currentWheelieDuration = 0
+            if let wheelieStart = currentWheelieStart {
+                let wheelie = Wheelie(startDate: wheelieStart, endDate: Date())
+                recording.wheelies.append(wheelie)
+                currentWheelieStart = nil
+            }
+        }
+    }
+    
+    private func startWheelieTimer() {
+        wheelieDurationTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            Task { @MainActor [weak self] in
+                guard let self, let wheelieStart = self.currentWheelieStart else { return }
+                self.currentWheelieDuration = Date().timeIntervalSince(wheelieStart)
+            }
+        }
+    }
+    
+    private func stopWheelieTimer() {
+        wheelieDurationTimer?.invalidate()
+        wheelieDurationTimer = nil
     }
 }

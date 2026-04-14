@@ -19,7 +19,8 @@ struct RecordingView: View {
             MapView(
                 coordinates: viewModel.currentRecording?.coordinates ?? [],
                 currentLocation: viewModel.currentLocation,
-                isRecording: viewModel.isRecording
+                isRecording: viewModel.isRecording,
+                wheelies: viewModel.allWheeliesIncludingOngoing
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
@@ -55,7 +56,7 @@ struct RecordingView: View {
         }
         .overlay(alignment: .top) {
             if viewModel.isRecording, let recording = viewModel.currentRecording  {
-                RecordingWheelieStatsView(bikePitchAngle: recording.bikePitchAngle, isWheelie: viewModel.isWheelie)
+                RecordingWheelieStatsView(bikePitchAngle: recording.bikePitchAngle, isWheelie: viewModel.isWheelie, wheelieDuration: viewModel.currentWheelieDuration)
             }
         }
         //        .overlay(alignment: .bottom) {

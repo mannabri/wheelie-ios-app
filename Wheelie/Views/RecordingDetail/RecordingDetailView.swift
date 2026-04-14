@@ -21,8 +21,9 @@ struct RecordingDetailView: View {
         ScrollView {
             VStack(spacing: 0) {
                 RouteMapView(
-                    coordinates: viewModel.routeCoordinates,
-                    region: $viewModel.mapRegion
+                    coordinates: viewModel.coordinates,
+                    region: $viewModel.mapRegion,
+                    wheelies: viewModel.recording.wheelies
                 )
                 .frame(height: 350)
                 
@@ -32,11 +33,16 @@ struct RecordingDetailView: View {
                 RecordingInfoView(recording: viewModel.recording)
                     .padding(.horizontal)
 
+                if !viewModel.recording.wheelies.isEmpty {
+                    WheeliesChartView(wheelies: viewModel.recording.wheelies)
+                        .padding(.horizontal)
+                        .padding(.top, 16)
+                }
+                
                 if !viewModel.recording.bikePitchAngles.isEmpty {
                     PitchAnglesListView(pitchAngles: viewModel.recording.bikePitchAngles)
                         .padding(.horizontal)
                         .padding(.top, 16)
-                        .frame(height: 100)
                 }
             }
         }
@@ -140,7 +146,13 @@ private struct RecordingInfoView: View {
                 PitchAngle(timestamp: Date().addingTimeInterval(-3), angle: 10),
                 PitchAngle(timestamp: Date().addingTimeInterval(-2), angle: 5),
                 PitchAngle(timestamp: Date().addingTimeInterval(-1), angle: 4),
-                PitchAngle(timestamp: Date(), angle: 0)
+                PitchAngle(timestamp: Date(), angle: 5)
+            ],
+            wheelies: [
+                Wheelie(startDate: Date().addingTimeInterval(-3500), endDate: Date().addingTimeInterval(-3495)),
+                Wheelie(startDate: Date().addingTimeInterval(-3400), endDate: Date().addingTimeInterval(-3390)),
+                Wheelie(startDate: Date().addingTimeInterval(-3200), endDate: Date().addingTimeInterval(-3185)),
+                Wheelie(startDate: Date().addingTimeInterval(-2800), endDate: Date().addingTimeInterval(-2790))
             ]
         ))
     }
