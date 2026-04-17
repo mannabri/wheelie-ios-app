@@ -22,15 +22,11 @@ struct SheetContentView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 if viewModel.isRecording {
-                    // Recording state: show stats and controls
                     recordingContent
                 } else {
-                    // Idle state: show start button and recent recordings
                     idleContent
                 }
             }
-//            .navigationTitle(viewModel.isRecording ? "Aufnahme" : "Wheelie")
-//            .navigationBarTitleDisplayMode(.inline)
         }
     }
     

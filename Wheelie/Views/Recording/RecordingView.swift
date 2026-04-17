@@ -5,15 +5,15 @@
 //  Hauptansicht für GPS-Aufnahme mit Karte und Steuerung
 //
 
-import SwiftUI
 import MapKit
+import SwiftUI
 
 /// Ansicht für die aktive GPS-Aufnahme
 struct RecordingView: View {
     @Binding var isRecordingActive: Bool
     let onRecordingFinished: (Recording) -> Void
     @StateObject private var viewModel = RecordingViewModel()
-    
+
     var body: some View {
         VStack(spacing: 0) {
             MapView(
@@ -23,11 +23,11 @@ struct RecordingView: View {
                 wheelies: viewModel.allWheeliesIncludingOngoing
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
+
             if viewModel.isRecording, let recording = viewModel.currentRecording {
                 RecordingStatsView(recording: recording)
             }
-            
+
             RecordingControlsView(
                 isRecording: viewModel.isRecording,
                 isPaused: viewModel.isPaused,
@@ -55,22 +55,10 @@ struct RecordingView: View {
             Text(viewModel.errorMessage ?? "")
         }
         .overlay(alignment: .top) {
-            if viewModel.isRecording, let recording = viewModel.currentRecording  {
+            if viewModel.isRecording, let recording = viewModel.currentRecording {
                 RecordingWheelieStatsView(bikePitchAngle: recording.bikePitchAngle, isWheelie: viewModel.isWheelie, wheelieDuration: viewModel.currentWheelieDuration)
             }
         }
-        //        .overlay(alignment: .bottom) {
-        //            RecordingControlsView(
-        //                isRecording: viewModel.isRecording,
-        //                isPaused: viewModel.isPaused,
-        //                onStart: viewModel.startRecording,
-        //                onPause: viewModel.pauseRecording,
-        //                onResume: viewModel.resumeRecording,
-        //                onStop: viewModel.stopRecording
-        //            )
-        //            .padding()
-        //        }
-        
     }
 }
 
