@@ -12,38 +12,26 @@ import SwiftUI
 struct MainMapView: View {
     @StateObject private var viewModel = RecordingViewModel()
     @StateObject private var recordingsListViewModel = RecordingsListViewModel()
-    
+
     @State private var sheetDetent: PresentationDetent = .medium
     @State private var showRecordingDetail: Bool = false
     @State private var completedRecording: Recording?
-    
+
     // Sheet detents configuration
     private let smallDetent: PresentationDetent = .height(180)
     private let mediumDetent: PresentationDetent = .medium
     private let largeDetent: PresentationDetent = .large
-    
+
     var body: some View {
-        ZStack {
-            // Full-size map
-            MapView(
-                coordinates: viewModel.currentRecording?.coordinates ?? [],
-                currentLocation: viewModel.currentLocation,
-                isRecording: viewModel.isRecording,
-                wheelies: viewModel.allWheeliesIncludingOngoing
-            )
-            .ignoresSafeArea()
-            
-            // Wheelie stats overlay during recording
+        MapView(
+            coordinates: viewModel.currentRecording?.coordinates ?? [],
+            currentLocation: viewModel.currentLocation,
+            isRecording: viewModel.isRecording,
+            wheelies: viewModel.allWheeliesIncludingOngoing
+        )
+        .overlay(alignment: .top) {
             if viewModel.isRecording, let recording = viewModel.currentRecording {
-                VStack {
-                    RecordingWheelieStatsView(
-                        bikePitchAngle: recording.bikePitchAngle,
-                        isWheelie: viewModel.isWheelie,
-                        wheelieDuration: viewModel.currentWheelieDuration
-                    )
-                    .padding(.top, 60)
-                    Spacer()
-                }
+                RecordingWheelieStatsView(bikePitchAngle: recording.bikePitchAngle, isWheelie: viewModel.isWheelie, wheelieDuration: viewModel.currentWheelieDuration)
             }
         }
         .sheet(isPresented: .constant(true)) {
@@ -84,7 +72,7 @@ struct MainMapView: View {
             viewModel.requestLocationPermission()
             viewModel.requestMotionPermission()
             recordingsListViewModel.loadRecordings()
-            
+
             viewModel.setOnRecordingFinished { recording in
                 completedRecording = recording
                 showRecordingDetail = true
