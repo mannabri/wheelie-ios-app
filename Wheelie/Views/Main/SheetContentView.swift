@@ -9,7 +9,6 @@ import SwiftUI
 
 /// Sheet content that changes based on recording state
 struct SheetContentView: View {
-    
     @ObservedObject var viewModel: RecordingViewModel
     @ObservedObject var recordingsListViewModel: RecordingsListViewModel
     @Binding var sheetDetent: PresentationDetent
@@ -32,20 +31,16 @@ struct SheetContentView: View {
     
     // MARK: - Recording Content
     
-    @ViewBuilder
     private var recordingContent: some View {
         VStack(spacing: 16) {
-            // Recording stats
+            // Recording stats card (Apple Maps style)
             if let recording = viewModel.currentRecording {
-                RecordingStatsExpandedView(recording: recording)
+                RecordingStatsCardView(recording: recording)
                     .padding(.horizontal)
             }
             
             // Stop button only visible when sheet is expanded
             if sheetDetent != smallDetent {
-                Divider()
-                    .padding(.horizontal)
-                
                 Button(action: viewModel.stopRecording) {
                     HStack {
                         Image(systemName: "stop.fill")
@@ -68,7 +63,6 @@ struct SheetContentView: View {
     
     // MARK: - Idle Content
     
-    @ViewBuilder
     private var idleContent: some View {
         VStack(spacing: 20) {
             // Start recording button
@@ -82,7 +76,8 @@ struct SheetContentView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(Color.red)
-                .cornerRadius(12)
+                .clipShape(Capsule())
+                .padding(.vertical)
             }
             .padding(.horizontal)
             .padding(.top)
@@ -134,7 +129,46 @@ struct SheetContentView: View {
     }
 }
 
-/// Expanded stats view for the sheet
+/// Apple Maps style stats card for recording
+struct RecordingStatsCardView: View {
+    let recording: Recording
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            // Duration
+            StatColumn(value: recording.formattedDurationShort, label: "Dauer")
+            
+            // Distance
+            StatColumn(value: recording.formattedDistanceShort, label: "km")
+            
+            // Wheelies count
+            StatColumn(value: "\(recording.wheelies.count)", label: "Wheelies")
+        }
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
+    }
+}
+
+/// Individual stat column (Apple Maps style)
+private struct StatColumn: View {
+    let value: String
+    let label: String
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.system(size: 32, weight: .bold))
+                .monospacedDigit()
+            
+            Text(label)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
+/// Expanded stats view for the sheet (legacy)
 struct RecordingStatsExpandedView: View {
     let recording: Recording
     
