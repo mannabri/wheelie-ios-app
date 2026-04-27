@@ -11,24 +11,23 @@ struct RecordingWheelieStatsView: View {
     let bikePitchAngle: Double
     let isWheelie: Bool
     let wheelieDuration: TimeInterval
-    
+
     private var formattedDuration: String {
         if !isWheelie {
             return "00:00"
         }
-        
+
         let minutes = Int(wheelieDuration) / 60
         let seconds = Int(wheelieDuration) % 60
         let milliseconds = Int((wheelieDuration.truncatingRemainder(dividingBy: 1)) * 100)
-        
+
         return String(format: "%02d:%02d.%02d", minutes, seconds, milliseconds)
     }
-    
+
     var body: some View {
         ZStack {
             (isWheelie ? Color.green : Color.white)
                 .opacity(0.95)
-                .ignoresSafeArea()
             VStack(spacing: 8) {
                 HStack(spacing: 16) {
                     Text(String(format: "%.1f°", bikePitchAngle))
