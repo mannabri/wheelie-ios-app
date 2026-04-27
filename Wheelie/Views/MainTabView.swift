@@ -12,9 +12,15 @@ struct MainTabView: View {
     @State private var isRecordingActive = false
     @State private var navigationPath = NavigationPath()
     @State private var recordingToShow: Recording?
-    
+
     var body: some View {
         TabView {
+            Tab("Übersicht", systemImage: "house.fill") {
+                NavigationStack {
+                    HomeView()
+                }
+                .toolbar(isRecordingActive ? .hidden : .visible, for: .tabBar)
+            }
             Tab("Aufnahme", systemImage: "record.circle") {
                 NavigationStack(path: $navigationPath) {
                     RecordingView(
@@ -32,11 +38,6 @@ struct MainTabView: View {
                     }
                 }
                 .toolbar(isRecordingActive ? .hidden : .visible, for: .tabBar)
-            }
-            
-            Tab("Übersicht", systemImage: "list.bullet") {
-                RecordingsListView()
-                    .toolbar(isRecordingActive ? .hidden : .visible, for: .tabBar)
             }
         }
     }
