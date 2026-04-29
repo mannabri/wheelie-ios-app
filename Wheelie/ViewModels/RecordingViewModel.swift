@@ -185,6 +185,13 @@ class RecordingViewModel: ObservableObject {
         currentWheelieDuration = 0
     }
     
+    /// Setzt den initialen Neigungswinkel auf den aktuellen Wert zurück
+    func resetInitialPitchAngle() {
+        guard var recording = currentRecording else { return }
+        recording.initialDevicePitchAngle = deviceOrientationManager.pitchAngle
+        currentRecording = recording
+    }
+    
     /// Verwirft die aktuelle Aufnahme ohne Speichern
     func discardRecording() {
         stopWheelieTimer()

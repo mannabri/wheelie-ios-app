@@ -19,7 +19,7 @@ struct Recording: Identifiable, Codable {
     var wheelies: [Wheelie]
     var devicePitchAngle: Double = 0.0 // TODO: move to view model
     var initialDevicePitchAngle: Double? // TODO: move to view model
-    var status: RecordingStatus // TODO: check if necessary? 
+    var status: RecordingStatus // TODO: check if necessary?
     
     init(id: UUID = UUID(), name: String = "", startDate: Date = Date(), endDate: Date? = nil, coordinates: [Coordinate] = [], bikePitchAngles: [PitchAngle] = [], wheelies: [Wheelie] = [], status: RecordingStatus = .recording) {
         self.id = id
@@ -55,6 +55,19 @@ struct Recording: Identifiable, Codable {
         return String(format: "%02d:%02d:%02d", hours, minutes, seconds)
     }
     
+    /// Formatierte Dauer als String kurz (MM:SS oder H:MM)
+    var formattedDurationShort: String {
+        let hours = Int(duration) / 3600
+        let minutes = (Int(duration) % 3600) / 60
+        let seconds = Int(duration) % 60
+        
+        if hours > 0 {
+            return String(format: "%d:%02d", hours, minutes)
+        } else {
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
+    }
+    
     /// Gesamtdistanz in Metern
     var totalDistance: Double {
         guard coordinates.count > 1 else { return 0 }
@@ -74,6 +87,16 @@ struct Recording: Identifiable, Codable {
             return String(format: "%.2f km", totalDistance / 1000)
         } else {
             return String(format: "%.0f m", totalDistance)
+        }
+    }
+    
+    /// Formatierte Distanz kurz (nur Zahl, immer in km)
+    var formattedDistanceShort: String {
+        let distanceInKm = totalDistance / 1000
+        if distanceInKm >= 10 {
+            return String(format: "%.0f", distanceInKm)
+        } else {
+            return String(format: "%.1f", distanceInKm).replacingOccurrences(of: ".", with: ",")
         }
     }
     
