@@ -67,6 +67,7 @@ struct RecordingView: View {
             if let recording = viewModel.currentRecording {
                 RecordingControlSheetView(
                     recording: recording,
+                    onResetPitchAngle: viewModel.resetInitialPitchAngle,
                     onStop: viewModel.stopRecording
                 )
             }
@@ -76,31 +77,50 @@ struct RecordingView: View {
 
 private struct RecordingControlSheetView: View {
     let recording: Recording
+    let onResetPitchAngle: () -> Void
     let onStop: () -> Void
 
     @State private var selectedDetent: PresentationDetent = .height(100)
 
     private let compactDetent = PresentationDetent.height(120)
-    private let expandedDetent = PresentationDetent.height(180)
+    private let expandedDetent = PresentationDetent.height(240)
 
     var body: some View {
         VStack(spacing: 0) {
             RecordingStatsCardView(recording: recording)
 
             if selectedDetent == expandedDetent {
-                Button(action: onStop) {
-                    HStack {
-                        Text("Aufnahme beenden")
+                VStack {
+                    Button(action: onResetPitchAngle) {
+                        HStack {
+                            Image(systemName: "arrow.counterclockwise")
+                                .padding(.trailing, 8)
+                            Text("Neigungswinkel zurücksetzen")
+                                .fontWeight(.semibold)
+                        }
+                        .font(.title2)
+                        .foregroundColor(.primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 10)
+                        .background(Color(.systemGray4))
+                        .cornerRadius(20.0)
                     }
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.red)
-                    .clipShape(Capsule())
+                    .padding(.horizontal)
+                    .padding(.bottom, 12)
+
+                    Button(action: onStop) {
+                        Text("Aufnahme beenden")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.red)
+                            .clipShape(Capsule())
+                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
