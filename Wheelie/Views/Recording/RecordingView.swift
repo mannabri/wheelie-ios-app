@@ -64,28 +64,49 @@ struct RecordingView: View {
         }
         .sheet(isPresented: Binding(get: { viewModel.isRecording }, set: { _ in })) {
             if let recording = viewModel.currentRecording {
-                VStack {
-                    RecordingStatsCardView(recording: recording)
-                    Button(action: viewModel.stopRecording) {
-                        HStack {
-                            Image(systemName: "stop.fill")
-                            Text("Aufnahme beenden")
-                        }
-                        .font(.headline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.red)
-//                        .cornerRadius(12)
-                        .clipShape(Capsule())
-                    }
-                    .padding(.horizontal)
-                }
-                .presentationDetents([.height(180)])
-                .presentationBackgroundInteraction(.enabled)
-                .interactiveDismissDisabled()
+                RecordingControlSheetView(
+                    recording: recording,
+                    onStop: viewModel.stopRecording
+                )
             }
         }
+    }
+}
+
+private struct RecordingControlSheetView: View {
+    let recording: Recording
+    let onStop: () -> Void
+
+    @State private var selectedDetent: PresentationDetent = .height(100)
+
+    private let compactDetent = PresentationDetent.height(120)
+    private let expandedDetent = PresentationDetent.height(180)
+
+    var body: some View {
+        VStack(spacing: 0) {
+            RecordingStatsCardView(recording: recording)
+
+            if selectedDetent == expandedDetent {
+                Button(action: onStop) {
+                    HStack {
+                        Image(systemName: "stop.fill")
+                        Text("Aufnahme beenden")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.red)
+                    .clipShape(Capsule())
+                }
+                .padding(.horizontal)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: selectedDetent)
+        .presentationDetents([compactDetent, expandedDetent], selection: $selectedDetent)
+        .presentationBackgroundInteraction(.enabled)
+        .interactiveDismissDisabled()
     }
 }
 

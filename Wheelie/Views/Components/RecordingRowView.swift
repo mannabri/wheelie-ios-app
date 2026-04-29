@@ -40,7 +40,7 @@ struct RecordingRowView: View {
 
 #Preview {
     RecordingRowView(recording: Recording(
-        name: "Morgenspaziergang",
+        name: "Aufnahme 27.04.2026 08:46",
         startDate: Date(),
         coordinates: []
     ))
