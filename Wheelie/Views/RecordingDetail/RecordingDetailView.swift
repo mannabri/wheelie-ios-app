@@ -12,6 +12,8 @@ import MapKit
 struct RecordingDetailView: View {
     
     @StateObject private var viewModel: RecordingDetailViewModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var showDeleteAlert = false
     
     init(recording: Recording) {
         _viewModel = StateObject(wrappedValue: RecordingDetailViewModel(recording: recording))
@@ -48,6 +50,24 @@ struct RecordingDetailView: View {
         }
         .navigationTitle(viewModel.recording.name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(role: .destructive) {
+                    showDeleteAlert = true
+                } label: {
+                    Image(systemName: "trash")
+                }
+            }
+        }
+        .alert("Aufnahme löschen?", isPresented: $showDeleteAlert) {
+            Button("Abbrechen", role: .cancel) {}
+            Button("Löschen", role: .destructive) {
+                viewModel.deleteRecording()
+                dismiss()
+            }
+        } message: {
+            Text("Diese Aufnahme wird unwiderruflich gelöscht.")
+        }
     }
 }
 

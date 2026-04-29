@@ -40,11 +40,20 @@ class RecordingDetailViewModel: ObservableObject {
         ]
     }
     
+    @Published var isDeleted = false
+
     // MARK: - Initialization
     
     init(recording: Recording) {
         self.recording = recording
         self.mapRegion = Self.calculateRegion(for: recording.coordinates)
+    }
+
+    // MARK: - Public Methods
+
+    func deleteRecording() {
+        try? StorageManager.shared.deleteRecording(recording)
+        isDeleted = true
     }
     
     // MARK: - Private Methods
