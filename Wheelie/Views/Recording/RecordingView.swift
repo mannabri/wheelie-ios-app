@@ -52,7 +52,8 @@ struct RecordingView: View {
                         Image(systemName: "record.circle")
                         Text("Aufnahme starten")
                     }
-                    .font(.headline)
+                    .font(.title3)
+                    .fontWeight(.bold)
                     .foregroundColor(.white)
                     .padding(.horizontal, 32)
                     .padding(.vertical, 20)
@@ -89,10 +90,10 @@ private struct RecordingControlSheetView: View {
             if selectedDetent == expandedDetent {
                 Button(action: onStop) {
                     HStack {
-                        Image(systemName: "stop.fill")
                         Text("Aufnahme beenden")
                     }
-                    .font(.headline)
+                    .font(.title2)
+                    .fontWeight(.bold)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
